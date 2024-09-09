@@ -39,27 +39,12 @@ resource "aws_instance" "this" {
 resource "aws_security_group" "this" {
   name   = var.name
   vpc_id = data.aws_vpc.this.id
+}
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  dynamic "ingress" {
-    for_each = var.ingress_rules
-
-    content {
-      from_port        = ingress.key
-      to_port          = coalesce(ingress.value.to_port, ingress.key)
-      protocol         = ingress.value.protocol
-      cidr_blocks      = ingress.value.cidr_blocks
-      ipv6_cidr_blocks = ingress.value.ipv6_cidr_blocks
-      security_groups  = ingress.value.security_groups
-      self             = ingress.value.self
-    }
-  }
+resource "aws_vpc_security_group_egress_rule" "this" {
+  security_group_id = aws_security_group.this.id
+  ip_protocol       = "-1"
+  cidr_ipv4         = "0.0.0.0/0"
 }
 
 resource "aws_iam_instance_profile" "this" {
