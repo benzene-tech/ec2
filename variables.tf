@@ -60,17 +60,17 @@ variable "spot" {
   default = null
 
   validation {
-    condition     = contains(["one-time", "persistent"], var.spot.type) || var.spot.type == null
+    condition     = try(contains(["one-time", "persistent"], var.spot.type), var.spot.type != null, true)
     error_message = "Type must be one either 'one-time' or 'persistent'"
   }
 
   validation {
-    condition     = contains(["hibernate", "stop", "terminate"], var.spot.interruption_behavior) || var.spot.interruption_behavior == null
+    condition     = try(contains(["hibernate", "stop", "terminate"], var.spot.interruption_behavior), var.spot.interruption_behavior != null, true)
     error_message = "Interruption behavior must be one among 'hibernate', 'stop' or 'terminate'"
   }
 
   validation {
-    condition     = can(regex("^(?:\\d+(?:\\.\\d+)?[smhdy])+$", var.spot.validity)) || can(regex("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$", var.spot.validity)) || var.spot.validity == ""
+    condition     = can(regex("^(?:\\d+(?:\\.\\d+)?[smhdy])+$", var.spot.validity)) || can(regex("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$", var.spot.validity)) || try(var.spot.validity == "", true)
     error_message = "Validity must be either a duration or end date represented as '1h30m' or '2018-05-13T07:44:12Z' respectively"
   }
 }

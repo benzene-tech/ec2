@@ -5,7 +5,7 @@ resource "aws_instance" "this" {
   vpc_security_group_ids = [aws_security_group.this.id]
   user_data              = var.user_data.path != null ? templatefile(var.user_data.path, var.user_data.arguments) : null
   iam_instance_profile   = var.profile_role != null ? one(aws_iam_instance_profile.this[*].name) : null
-  hibernation            = var.spot.interruption_behavior == "hibernate" ? true : null
+  hibernation            = try(var.spot.interruption_behavior == "hibernate", null)
 
   root_block_device {
     encrypted = true
